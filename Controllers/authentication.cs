@@ -9,37 +9,37 @@ namespace mywebapp.Controllers
     [ApiController]
     [Route("[controller]")]
 
-    public class auth : ControllerBase
+    public class Auth : ControllerBase
     {
         MySqlConnection connection;
-        public auth()
+        public Auth()
         {
 
             connection = new MySqlConnection("Server=localhost;User ID=root;Password=@Gantrum2905;Database=tntra");
             connection.Open();
         }
         [HttpGet("auth")]
-        public IActionResult Post(string name, int price)
+        public IActionResult Post(string username, string password)
         {
-            string count = "select count(*) from computer where name=@name";
+            string count = "select count(*) from userpass where username=@username";
             using var countcon = new MySqlCommand(count, connection);
-            countcon.Parameters.AddWithValue("@name", name);
+            countcon.Parameters.AddWithValue("@username", username);
             var num = countcon.ExecuteScalar();
             if ((int.Parse(num.ToString()) > 0))
             {
-                string sql = "select price from computer where name=@name";
+                string sql = "select password from userpass where username=@username";
                 using var command = new MySqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@name", name);
+                command.Parameters.AddWithValue("@username", username);
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    if (reader.GetValue(0).ToString() == price.ToString())
+                    if (reader.GetValue(0).ToString() == password.ToString())
                     {
                         return Ok("you have logged in successfully");
                     }
                     else
                     {
-                        return Ok("Invalid price");
+                        return Ok("Invalid password");
                     }
                 }
             }
@@ -47,11 +47,37 @@ namespace mywebapp.Controllers
 
             else
             {
-                return Ok("invalid name");
+                return Ok("invalid username");
             }
 
             return BadRequest("");
         }
+
+
+
+        [HttpPost("insertData")]
+        public IActionResult AddUser(string username, string password)
+        {
+            string sql = "insert into userpass values('" + username + "','" + password+ "')";
+            using var command = new MySqlCommand(sql, connection);
+            command.ExecuteScalar();
+            return Ok(command);
+        }
+
+        [HttpGet("getData")]
+        public IActionResult Get()
+        {
+            List<userpass> userpasses = new List<userpass>();
+            using var command = new MySqlCommand("select * from userpass", connection);
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                userpass userpass = new userpass() { username = reader.GetValue(0).ToString(), password = reader.GetValue(1).ToString() };
+                userpasses.Add(userpass);
+            }
+            return Ok(userpasses);
+        }
+
     }
 
 
