@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using mywebapp.Models;
@@ -6,6 +7,7 @@ namespace mywebapp.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    
     public class MycontrollerController : ControllerBase
     {
         MySqlConnection connection;
@@ -19,7 +21,9 @@ namespace mywebapp.Controllers
 
         [HttpGet(
             "Getdetails")]
+            [Authorize]
         public IActionResult Get()
+
         {
 
 
